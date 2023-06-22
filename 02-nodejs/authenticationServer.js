@@ -37,9 +37,9 @@ app.use(bodyParser.json());
 // write your logic here, DONT WRITE app.listen(3000) when you're running tests, the tests will automatically start the server
 const users = [];
 
-// app.listen(PORT, ()=>{
-//   console.log(`App is listening to Port ${PORT}`);
-// })
+app.listen(PORT, ()=>{
+  console.log(`App is listening to Port ${PORT}`);
+})
 let ids = 0;
 app.post('/signup',(req,res)=>{
       const user = req.body;
@@ -54,21 +54,18 @@ app.post('/signup',(req,res)=>{
       res.sendStatus(201);
 });
 
-app.post('/login',(req,res)=>{
-    const username = req.body.username;
-    const password = req.body.password;
-    for(let user of users){
-      if(username == user.username && password == user.password){
-          const obj = {
-            "firstName": user.firstName,
-            "lastName": user.lastName,
-            "username": user.username
-          }
-          res.send(obj);
+app.post('/login',(req,res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+  for(let user of users){
+    if(user.username === username){
+      if(user.password === password){
+        res.sendStatus(200);
       }
     }
-    res.sendStatus(401);
-})
+  }
+  res.sendStatus(401);
+});
 
 app.get('/data',(req,res) => {
   res.send(users);
