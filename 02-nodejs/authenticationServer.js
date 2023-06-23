@@ -28,18 +28,21 @@
 
   Testing the server - run `npm run test-authenticationServer` command in terminal
  */
-
+require('dotenv').config();
 const express = require("express")
 const PORT = 3000;
 const app = express();
+app.use(express.json());
 const bodyParser = require("body-parser");
 app.use(bodyParser.json());
+const jwt = require('jsonwebtoken');
+const exp = require("constants");
 // write your logic here, DONT WRITE app.listen(3000) when you're running tests, the tests will automatically start the server
 const users = [];
 
-app.listen(PORT, ()=>{
-  console.log(`App is listening to Port ${PORT}`);
-})
+// app.listen(PORT, ()=>{
+//   console.log(`App is listening to Port ${PORT}`);
+// })
 let ids = 0;
 app.post('/signup',(req,res)=>{
       const user = req.body;
@@ -60,14 +63,36 @@ app.post('/login',(req,res) => {
   for(let user of users){
     if(user.username === username){
       if(user.password === password){
-        res.sendStatus(200);
+        let fName = user.firstName;
+        let lName = user.lastName;
+        let obj = {
+          email:username,
+          firstname:fName,
+          lastname:lName
+        }
+        const authentication_token = jwt.sign(obj,process.env.ACCESS_TOKEN_SECRET);
+        res.json({authentication_token : authentication_token});
       }
     }
   }
   res.sendStatus(401);
+
 });
 
-app.get('/data',(req,res) => {
-  res.send(users);
+app.get('/data', authenticateToken ,(req,res) => {
+  res.json(users);
 })
+
+function authenticateToken(req,res,next){
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  if(token == null)return res.sendStatus(401)
+
+  jwt.verify(token,process.env.ACCESS_TOKEN_SECRET, (err,user)=>{
+      if(err)res.sendStatus(403);
+      req.user = user;
+      next();
+  })
+}
+
 module.exports = app;
