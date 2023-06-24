@@ -49,13 +49,13 @@ app.post('/signup',(req,res)=>{
       const user = req.body;
       for(let obj of users){
         if(obj.username === user.username){
-          res.sendStatus(400);
+          res.status(400);
           break;
         }
       }
       user.UniqueId = ids++;
       users.push(user);
-      res.sendStatus(201);
+      res.status(201).send("Signup successful");
 });
 
 //login route

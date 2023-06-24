@@ -16,41 +16,35 @@
 
     Testing the server - run `npm run test-fileServer` command in terminal
  */
+const { dir } = require('console');
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const app = express();
-const dirPath = __dirname + "/files";
-app.listen(3000,()=>{
-  console.log("Server running on port 3000");
-})
+const dirPath = path.join(__dirname,'/files');
+// app.listen(3000,()=>{
+//   console.log("Server running on port 3000");
+// })
 
-  let routeArr = [];
 app.get('/files',(req,res)=>{
   fs.readdir(dirPath,(err,files)=>{
-      if(err)res.sendStatus(400);
-      for(let file of files){
-        routeArr.push(file);
-      }
-      res.send(routeArr);
+      if(err)res.status(500).send("Failed to load files");
+      res.send(files);
   })
 })
 
-app.get('/files/:routeArr',(req,res)=>{
-    const fileName = req.params.routeArr;
-    if(routeArr.includes(fileName)){
-      res.send(fileName);
-    }
-    else{
-      res.sendStatus(404);
-    }
+app.get('/file/:fileName',(req,res) => {
+    const filePath = path.join(dirPath,req.params.fileName);
+    fs.readFile(filePath,'utf-8',(err,data)=>{
+      if(err)res.status(404).send("File not found");
+      else{
+        res.status(200).send(data);
+      }
+    });
 });
 
-app.post('*',(req,res)=>{
-  res.sendStatus(404);
-})
-app.get('*',(req,res)=>{
-  res.sendStatus(404);
+app.all('*',(req,res)=>{
+  res.status(404).send("Route not found");
 })
 
 module.exports = app;
