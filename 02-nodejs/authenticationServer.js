@@ -44,6 +44,7 @@ const users = [];
 //   console.log(`App is listening to Port ${PORT}`);
 // })
 let ids = 0;
+//signup route
 app.post('/signup',(req,res)=>{
       const user = req.body;
       for(let obj of users){
@@ -57,6 +58,7 @@ app.post('/signup',(req,res)=>{
       res.sendStatus(201);
 });
 
+//login route
 app.post('/login',(req,res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -79,10 +81,14 @@ app.post('/login',(req,res) => {
 
 });
 
+
+//data route
 app.get('/data', authenticateToken ,(req,res) => {
   res.json(users);
 })
 
+
+//middleware to check for the token
 function authenticateToken(req,res,next){
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
